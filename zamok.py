@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 import math
+import os
 
 # Инициализация Pygame
 pygame.init()
@@ -21,27 +22,60 @@ BLUE = (0, 120, 255)
 PURPLE = (128, 0, 128)
 GOLD = (255, 215, 0)
 
-# Загрузка текстур (заглушки - в реальной игре замените на настоящие текстуры)
-def create_texture(color, size):
-    texture = pygame.Surface(size)
-    texture.fill(color)
-    for i in range(100):
-        x, y = random.randint(0, size[0]-1), random.randint(0, size[1]-1)
-        pygame.draw.circle(texture, (min(color[0]+30, 255), min(color[1]+30, 255), min(color[2]+30, 255)), (x, y), 1)
-    return texture
+# Функция для загрузки изображений с обработкой ошибок
+def load_image(name, size=None):
+    try:
+        image = pygame.image.load(name)
+        if size:
+            image = pygame.transform.scale(image, size)
+        return image
+    except pygame.error:
+        print(f"Не могу загрузить изображение: {name}")
+        # Создаем заглушку если изображение не найдено
+        surf = pygame.Surface((50, 50))
+        surf.fill((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+        font = pygame.font.SysFont(None, 20)
+        text = font.render(name.split('/')[-1].split('\\')[-1], True, WHITE)
+        surf.blit(text, (5, 15))
+        return surf
 
-# Создание текстур
-textures = {
-    "castle": create_texture((100, 80, 60), (100, 100)),
-    "floor": create_texture((120, 100, 80), (50, 50)),
-    "dark_prince": create_texture((60, 60, 100), (40, 60)),
-    "skeleton": create_texture((200, 200, 200), (40, 60)),
-    "demon": create_texture((200, 50, 50), (50, 70)),
-    "ghost": create_texture((200, 200, 250), (40, 60)),
-    "dragon": create_texture((255, 100, 50), (120, 80)),
-    "health_potion": create_texture((255, 0, 0), (20, 20)),
-    "sword": create_texture((200, 200, 220), (30, 50))
-}
+# Загрузка текстур
+try:
+    # Загрузка фонов
+    castle_bg = load_image("castle_bg.jpg", (SCREEN_WIDTH, SCREEN_HEIGHT))
+    floor_texture = load_image("floor.png", (50, 50))
+    
+    # Загрузка персонажей
+    dark_prince_img = load_image("dark_prince.png", (60, 80))
+    skeleton_img = load_image("skeleton.png", (50, 70))
+    demon_img = load_image("demon.png", (60, 80))
+    ghost_img = load_image("ghost.png", (50, 70))
+    dragon_img = load_image("dragon.png", (150, 100))
+    
+    # Загрузка предметов
+    health_potion_img = load_image("health_potion.png", (30, 30))
+    sword_img = load_image("sword.png", (40, 40))
+    
+except Exception as e:
+    print(f"Ошибка загрузки изображений: {e}")
+    # Создаем простые текстуры в случае ошибки
+    def create_texture(color, size):
+        texture = pygame.Surface(size)
+        texture.fill(color)
+        for i in range(100):
+            x, y = random.randint(0, size[0]-1), random.randint(0, size[1]-1)
+            pygame.draw.circle(texture, (min(color[0]+30, 255), min(color[1]+30, 255), min(color[2]+30, 255)), (x, y), 1)
+        return texture
+
+    castle_bg = create_texture((100, 80, 60), (SCREEN_WIDTH, SCREEN_HEIGHT))
+    floor_texture = create_texture((120, 100, 80), (50, 50))
+    dark_prince_img = create_texture((60, 60, 100), (60, 80))
+    skeleton_img = create_texture((200, 200, 200), (50, 70))
+    demon_img = create_texture((200, 50, 50), (60, 80))
+    ghost_img = create_texture((200, 200, 250), (50, 70))
+    dragon_img = create_texture((255, 100, 50), (150, 100))
+    health_potion_img = create_texture((255, 0, 0), (30, 30))
+    sword_img = create_texture((200, 200, 220), (40, 40))
 
 # Класс игрока
 class Player:
@@ -52,16 +86,23 @@ class Player:
         self.x = SCREEN_WIDTH // 2
         self.y = SCREEN_HEIGHT // 2
         self.speed = 5
-        self.rect = pygame.Rect(self.x - 20, self.y - 30, 40, 60)
+        self.rect = pygame.Rect(self.x - 30, self.y - 40, 60, 80)
         self.attack_cooldown = 0
         self.score = 0
         self.health_potions = 3
+        self.direction = "right"  # Направление взгляда для анимации
     
     def move(self, dx, dy):
+        # Обновляем направление
+        if dx > 0:
+            self.direction = "right"
+        elif dx < 0:
+            self.direction = "left"
+            
         # Проверка границ экрана
-        if 0 < self.x + dx < SCREEN_WIDTH:
+        if 50 < self.x + dx < SCREEN_WIDTH - 50:
             self.x += dx
-        if 0 < self.y + dy < SCREEN_HEIGHT:
+        if 50 < self.y + dy < SCREEN_HEIGHT - 50:
             self.y += dy
         self.rect.center = (self.x, self.y)
     
@@ -77,11 +118,16 @@ class Player:
     
     def draw(self, screen):
         # Рисуем игрока
-        screen.blit(textures["dark_prince"], (self.x - 20, self.y - 30))
+        if self.direction == "right":
+            screen.blit(dark_prince_img, (self.x - 30, self.y - 40))
+        else:
+            # Отражаем изображение для левого направления
+            flipped_img = pygame.transform.flip(dark_prince_img, True, False)
+            screen.blit(flipped_img, (self.x - 30, self.y - 40))
         
         # Рисуем здоровье
-        pygame.draw.rect(screen, RED, (self.x - 20, self.y - 50, 40, 5))
-        pygame.draw.rect(screen, GREEN, (self.x - 20, self.y - 50, 40 * (self.health / self.max_health), 5))
+        pygame.draw.rect(screen, RED, (self.x - 30, self.y - 50, 60, 5))
+        pygame.draw.rect(screen, GREEN, (self.x - 30, self.y - 50, 60 * (self.health / self.max_health), 5))
     
     def use_health_potion(self):
         if self.health_potions > 0:
@@ -96,31 +142,36 @@ class Enemy:
         self.type = enemy_type
         self.x = x
         self.y = y
+        self.direction = "left"
         
         if enemy_type == "skeleton":
             self.health = 30
             self.max_health = 30
             self.damage = 10
             self.speed = 2
-            self.rect = pygame.Rect(self.x - 20, self.y - 30, 40, 60)
+            self.rect = pygame.Rect(self.x - 25, self.y - 35, 50, 70)
+            self.image = skeleton_img
         elif enemy_type == "demon":
             self.health = 40
             self.max_health = 40
             self.damage = 15
             self.speed = 3
-            self.rect = pygame.Rect(self.x - 25, self.y - 35, 50, 70)
+            self.rect = pygame.Rect(self.x - 30, self.y - 40, 60, 80)
+            self.image = demon_img
         elif enemy_type == "ghost":
             self.health = 25
             self.max_health = 25
             self.damage = 12
             self.speed = 4
-            self.rect = pygame.Rect(self.x - 20, self.y - 30, 40, 60)
+            self.rect = pygame.Rect(self.x - 25, self.y - 35, 50, 70)
+            self.image = ghost_img
         elif enemy_type == "dragon":
             self.health = 100
             self.max_health = 100
             self.damage = 20
             self.speed = 1
-            self.rect = pygame.Rect(self.x - 60, self.y - 40, 120, 80)
+            self.rect = pygame.Rect(self.x - 75, self.y - 50, 150, 100)
+            self.image = dragon_img
         
         self.attack_cooldown = 0
     
@@ -130,6 +181,12 @@ class Enemy:
         dist = max(1, math.sqrt(dx * dx + dy * dy))
         dx, dy = dx / dist, dy / dist
         
+        # Обновляем направление
+        if dx > 0:
+            self.direction = "right"
+        else:
+            self.direction = "left"
+            
         self.x += dx * self.speed
         self.y += dy * self.speed
         self.rect.center = (self.x, self.y)
@@ -146,19 +203,16 @@ class Enemy:
     
     def draw(self, screen):
         # Рисуем врага
-        if self.type == "skeleton":
-            screen.blit(textures["skeleton"], (self.x - 20, self.y - 30))
-        elif self.type == "demon":
-            screen.blit(textures["demon"], (self.x - 25, self.y - 35))
-        elif self.type == "ghost":
-            screen.blit(textures["ghost"], (self.x - 20, self.y - 30))
-        elif self.type == "dragon":
-            screen.blit(textures["dragon"], (self.x - 60, self.y - 40))
+        if self.direction == "right":
+            screen.blit(self.image, (self.rect.x, self.rect.y))
+        else:
+            flipped_img = pygame.transform.flip(self.image, True, False)
+            screen.blit(flipped_img, (self.rect.x, self.rect.y))
         
         # Рисуем здоровье
-        health_width = 40
+        health_width = 50
         if self.type == "dragon":
-            health_width = 100
+            health_width = 120
         
         pygame.draw.rect(screen, RED, (self.x - health_width//2, self.y - 60, health_width, 5))
         pygame.draw.rect(screen, GREEN, (self.x - health_width//2, self.y - 60, health_width * (self.health / self.max_health), 5))
@@ -169,13 +223,13 @@ class Item:
         self.type = item_type
         self.x = x
         self.y = y
-        self.rect = pygame.Rect(x - 10, y - 10, 20, 20)
+        self.rect = pygame.Rect(x - 15, y - 15, 30, 30)
     
     def draw(self, screen):
         if self.type == "health_potion":
-            screen.blit(textures["health_potion"], (self.x - 10, self.y - 10))
+            screen.blit(health_potion_img, (self.x - 15, self.y - 15))
         elif self.type == "sword":
-            screen.blit(textures["sword"], (self.x - 15, self.y - 25))
+            screen.blit(sword_img, (self.x - 20, self.y - 20))
 
 # Основная функция игры
 def main():
@@ -287,14 +341,13 @@ def main():
         
         # Отрисовка
         # Рисуем фон замка
-        for x in range(0, SCREEN_WIDTH, 100):
-            for y in range(0, SCREEN_HEIGHT, 100):
-                screen.blit(textures["castle"], (x, y))
+        screen.blit(castle_bg, (0, 0))
         
-        # Рисуем пол
+        # Рисуем пол (поверх фона для разнообразия)
         for x in range(0, SCREEN_WIDTH, 50):
             for y in range(0, SCREEN_HEIGHT, 50):
-                screen.blit(textures["floor"], (x, y))
+                if (x + y) % 100 == 0:  # Каждый второй тайл
+                    screen.blit(floor_texture, (x, y))
         
         # Рисуем предметы
         for item in items:
@@ -360,4 +413,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
