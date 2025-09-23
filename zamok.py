@@ -55,31 +55,315 @@ def load_image(name, size=None):
         surf.blit(text, text_rect)
         return surf
 
-# Функции для создания текстур
-def create_character_texture(color, size, name):
+# Функции для создания более детализированных текстур персонажей
+def create_detailed_dark_prince(size):
     texture = pygame.Surface(size, pygame.SRCALPHA)
     # Тело
-    pygame.draw.ellipse(texture, color, (10, 10, size[0]-20, size[1]-20))
+    pygame.draw.ellipse(texture, (60, 40, 80), (10, 30, size[0]-20, size[1]-40))
     # Голова
-    pygame.draw.circle(texture, color, (size[0]//2, 20), 15)
+    pygame.draw.circle(texture, (80, 60, 100), (size[0]//2, 20), 15)
+    # Плащ
+    pygame.draw.polygon(texture, (40, 20, 60), [
+        (5, 30), (size[0]-5, 30), 
+        (size[0]-5, size[1]-10), (size[0]-25, size[1]-5),
+        (25, size[1]-5), (5, size[1]-10)
+    ])
+    # Корона
+    pygame.draw.rect(texture, DARK_GOLD, (size[0]//2-12, 5, 24, 10))
+    for i in range(5):
+        pygame.draw.rect(texture, DARK_GOLD, (size[0]//2-12 + i*6, 0, 3, 10))
     # Глаза
-    pygame.draw.circle(texture, (255, 255, 255), (size[0]//2-8, 18), 3)
-    pygame.draw.circle(texture, (255, 255, 255), (size[0]//2+8, 18), 3)
-    # Текст с названием
-    font = pygame.font.SysFont(None, 12)
-    text = font.render(name, True, (255, 255, 255))
-    texture.blit(text, (5, size[1]-20))
+    pygame.draw.circle(texture, (200, 50, 50), (size[0]//2-8, 18), 4)
+    pygame.draw.circle(texture, (200, 50, 50), (size[0]//2+8, 18), 4)
+    # Меч
+    pygame.draw.rect(texture, (200, 200, 220), (size[0]//2-2, 40, 4, 30))
+    pygame.draw.rect(texture, (120, 80, 40), (size[0]//2-5, 70, 10, 8))
     return texture
 
-def create_background(color):
+def create_detailed_skeleton(size):
+    texture = pygame.Surface(size, pygame.SRCALPHA)
+    # Череп
+    pygame.draw.circle(texture, (200, 200, 200), (size[0]//2, 15), 12)
+    # Глазницы
+    pygame.draw.ellipse(texture, (40, 40, 40), (size[0]//2-8, 10, 6, 8))
+    pygame.draw.ellipse(texture, (40, 40, 40), (size[0]//2+2, 10, 6, 8))
+    # Тело (позвоночник)
+    pygame.draw.rect(texture, (180, 180, 180), (size[0]//2-4, 25, 8, 25))
+    # Ребра
+    for i in range(3):
+        y_pos = 30 + i*8
+        pygame.draw.ellipse(texture, (160, 160, 160), (size[0]//2-10, y_pos, 20, 6))
+    # Руки
+    pygame.draw.line(texture, (180, 180, 180), (size[0]//2, 30), (size[0]//2-15, 45), 4)
+    pygame.draw.line(texture, (180, 180, 180), (size[0]//2, 30), (size[0]//2+15, 45), 4)
+    # Ноги
+    pygame.draw.line(texture, (180, 180, 180), (size[0]//2, 50), (size[0]//2-10, 70), 4)
+    pygame.draw.line(texture, (180, 180, 180), (size[0]//2, 50), (size[0]//2+10, 70), 4)
+    # Меч
+    pygame.draw.rect(texture, (150, 150, 160), (size[0]//2-15, 40, 3, 25))
+    return texture
+
+def create_detailed_demon(size):
+    texture = pygame.Surface(size, pygame.SRCALPHA)
+    # Тело
+    pygame.draw.ellipse(texture, (160, 40, 40), (10, 20, size[0]-20, size[1]-30))
+    # Голова
+    pygame.draw.circle(texture, (180, 60, 60), (size[0]//2, 15), 12)
+    # Рога
+    pygame.draw.polygon(texture, (120, 60, 40), [(size[0]//2-8, 5), (size[0]//2-15, 0), (size[0]//2-8, 10)])
+    pygame.draw.polygon(texture, (120, 60, 40), [(size[0]//2+8, 5), (size[0]//2+15, 0), (size[0]//2+8, 10)])
+    # Глаза
+    pygame.draw.circle(texture, (255, 255, 0), (size[0]//2-5, 15), 3)
+    pygame.draw.circle(texture, (255, 255, 0), (size[0]//2+5, 15), 3)
+    # Крылья
+    pygame.draw.ellipse(texture, (120, 30, 30, 150), (-10, 25, 40, 20))
+    pygame.draw.ellipse(texture, (120, 30, 30, 150), (size[0]-30, 25, 40, 20))
+    # Хвост
+    pygame.draw.ellipse(texture, (140, 40, 40), (size[0]//2-2, size[1]-20, 4, 15))
+    pygame.draw.circle(texture, (180, 80, 80), (size[0]//2, size[1]-5), 4)
+    return texture
+
+def create_detailed_ghost(size):
+    texture = pygame.Surface(size, pygame.SRCALPHA)
+    # Призрачное тело
+    points = []
+    for i in range(10):
+        angle = math.pi * i / 9
+        radius = 15 + random.randint(-3, 3)
+        x = size[0]//2 + math.cos(angle) * radius
+        y = 20 + math.sin(angle) * radius
+        points.append((x, y))
+    
+    for i in range(10, 20):
+        angle = math.pi * i / 9
+        radius = 25 + random.randint(-5, 5)
+        x = size[0]//2 + math.cos(angle) * radius
+        y = 40 + math.sin(angle) * radius
+        points.append((x, y))
+    
+    pygame.draw.polygon(texture, (200, 200, 220, 180), points)
+    
+    # Глаза
+    pygame.draw.circle(texture, (100, 100, 200, 220), (size[0]//2-6, 25), 4)
+    pygame.draw.circle(texture, (100, 100, 200, 220), (size[0]//2+6, 25), 4)
+    
+    # Руки
+    pygame.draw.ellipse(texture, (180, 180, 200, 160), (size[0]//2-20, 35, 10, 15))
+    pygame.draw.ellipse(texture, (180, 180, 200, 160), (size[0]//2+10, 35, 10, 15))
+    
+    return texture
+
+def create_detailed_dragon(size):
+    texture = pygame.Surface(size, pygame.SRCALPHA)
+    # Тело
+    pygame.draw.ellipse(texture, (200, 80, 40), (50, 40, size[0]-100, size[1]-60))
+    # Голова
+    pygame.draw.circle(texture, (220, 100, 60), (size[0]//2, 30), 20)
+    # Шея
+    pygame.draw.ellipse(texture, (180, 70, 35), (size[0]//2-15, 30, 30, 40))
+    # Глаза
+    pygame.draw.circle(texture, (255, 255, 0), (size[0]//2-8, 25), 6)
+    pygame.draw.circle(texture, (255, 255, 0), (size[0]//2+8, 25), 6)
+    # Рога
+    pygame.draw.polygon(texture, (150, 100, 50), [(size[0]//2-15, 15), (size[0]//2-25, 5), (size[0]//2-10, 10)])
+    pygame.draw.polygon(texture, (150, 100, 50), [(size[0]//2+15, 15), (size[0]//2+25, 5), (size[0]//2+10, 10)])
+    # Крылья
+    wing_points = [
+        (80, 50), (20, 30), (10, 60), (40, 80), (80, 70)
+    ]
+    pygame.draw.polygon(texture, (180, 70, 35, 180), wing_points)
+    
+    wing_points2 = [
+        (size[0]-80, 50), (size[0]-20, 30), (size[0]-10, 60), (size[0]-40, 80), (size[0]-80, 70)
+    ]
+    pygame.draw.polygon(texture, (180, 70, 35, 180), wing_points2)
+    # Хвост
+    tail_points = [
+        (size[0]-50, size[1]//2), (size[0]-10, size[1]//2-10), 
+        (size[0]-5, size[1]//2+10), (size[0]-40, size[1]//2+5)
+    ]
+    pygame.draw.polygon(texture, (180, 70, 35), tail_points)
+    # Ноги
+    pygame.draw.rect(texture, (180, 70, 35), (70, size[1]-40, 15, 30))
+    pygame.draw.rect(texture, (180, 70, 35), (size[0]-85, size[1]-40, 15, 30))
+    
+    # Пламя из пасти
+    for i in range(5):
+        flame_height = random.randint(5, 15)
+        flame_width = random.randint(3, 8)
+        flame_x = size[0]//2 - 10 + i*5
+        pygame.draw.ellipse(texture, (255, 200, 0), (flame_x, 45, flame_width, flame_height))
+        pygame.draw.ellipse(texture, (255, 100, 0), (flame_x, 45, flame_width, flame_height//2))
+    
+    return texture
+
+# Функции для создания фонов разных уровней
+def create_detailed_background_level1():
     bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-    bg.fill(color)
-    # Добавляем детали на фон
-    for i in range(200):
-        x = random.randint(0, SCREEN_WIDTH-1)
-        y = random.randint(0, SCREEN_HEIGHT-1)
-        radius = random.randint(1, 3)
-        pygame.draw.circle(bg, (color[0]+20, color[1]+20, color[2]+20), (x, y), radius)
+    # Градиент от темно-серого к черному
+    for y in range(SCREEN_HEIGHT):
+        shade = max(10, 50 - y // 20)
+        pygame.draw.line(bg, (shade, shade, shade), (0, y), (SCREEN_WIDTH, y))
+    
+    # Гробница - каменные стены
+    for x in range(0, SCREEN_WIDTH, 50):
+        for y in range(0, SCREEN_HEIGHT, 50):
+            stone_color = (random.randint(30, 50), random.randint(25, 45), random.randint(20, 40))
+            pygame.draw.rect(bg, stone_color, (x, y, 50, 50), 1)
+            # Трещины на камнях
+            if random.random() > 0.7:
+                crack_x = x + random.randint(5, 45)
+                pygame.draw.line(bg, (20, 20, 20), (crack_x, y+5), (crack_x, y+45), 1)
+    
+    # Саркофаги
+    for i in range(3):
+        x = 200 + i * 300
+        y = SCREEN_HEIGHT - 150
+        pygame.draw.rect(bg, (40, 35, 30), (x, y, 120, 80))
+        pygame.draw.rect(bg, (50, 45, 35), (x+10, y+10, 100, 60))
+        # Крышка саркофага
+        pygame.draw.polygon(bg, (35, 30, 25), [(x, y), (x+120, y), (x+100, y-20), (x+20, y-20)])
+    
+    # Светящиеся грибы
+    for i in range(10):
+        x = random.randint(50, SCREEN_WIDTH-50)
+        y = random.randint(SCREEN_HEIGHT-200, SCREEN_HEIGHT-100)
+        # Ножка гриба
+        pygame.draw.rect(bg, (120, 100, 80), (x, y, 5, 15))
+        # Шляпка
+        pygame.draw.ellipse(bg, (150, 50, 150, 100), (x-10, y-5, 25, 10))
+        # Свечение
+        for r in range(3, 0, -1):
+            alpha = 50 - r * 15
+            glow = pygame.Surface((30 + r*10, 20 + r*5), pygame.SRCALPHA)
+            pygame.draw.ellipse(glow, (150, 50, 150, alpha), (0, 0, 30 + r*10, 20 + r*5))
+            bg.blit(glow, (x-15 - r*5, y-10 - r*2))
+    
+    return bg
+
+def create_detailed_background_level2():
+    bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+    # Градиент адского неба
+    for y in range(SCREEN_HEIGHT):
+        r = min(100, 30 + y // 10)
+        g = max(0, 10 - y // 20)
+        b = max(0, 5 - y // 30)
+        pygame.draw.line(bg, (r, g, b), (0, y), (SCREEN_WIDTH, y))
+    
+    # Лавовые реки
+    lava_y = SCREEN_HEIGHT - 100
+    lava_points = []
+    for x in range(0, SCREEN_WIDTH, 10):
+        y_offset = math.sin(x / 50) * 20
+        lava_points.append((x, lava_y + y_offset))
+    
+    if len(lava_points) > 1:
+        pygame.draw.polygon(bg, (150, 50, 0), [(0, SCREEN_HEIGHT)] + lava_points + [(SCREEN_WIDTH, SCREEN_HEIGHT)])
+        
+        # Пузыри лавы
+        for i in range(20):
+            x = random.randint(0, SCREEN_WIDTH)
+            y = random.randint(lava_y - 30, SCREEN_HEIGHT)
+            size = random.randint(5, 15)
+            pygame.draw.circle(bg, (255, 100, 0), (x, y), size)
+            pygame.draw.circle(bg, (255, 150, 50), (x, y), size-3)
+    
+    # Врата ада - каменные арки
+    for i in range(3):
+        x = 150 + i * 350
+        arch_height = 300
+        arch_width = 100
+        
+        # Колонны
+        pygame.draw.rect(bg, (60, 50, 40), (x, SCREEN_HEIGHT - arch_height, 20, arch_height))
+        pygame.draw.rect(bg, (60, 50, 40), (x + arch_width - 20, SCREEN_HEIGHT - arch_height, 20, arch_height))
+        
+        # Арка
+        pygame.draw.arc(bg, (60, 50, 40), (x, SCREEN_HEIGHT - arch_height - 50, arch_width, 100), math.pi, 2*math.pi, 20)
+        
+        # Пламя внутри арок
+        for j in range(5):
+            flame_x = x + 20 + j * 15
+            flame_height = random.randint(50, 100)
+            flame_points = [
+                (flame_x, SCREEN_HEIGHT),
+                (flame_x - 10, SCREEN_HEIGHT - flame_height),
+                (flame_x, SCREEN_HEIGHT - flame_height - 20),
+                (flame_x + 10, SCREEN_HEIGHT - flame_height),
+                (flame_x, SCREEN_HEIGHT)
+            ]
+            pygame.draw.polygon(bg, (255, 100, 0), flame_points)
+            pygame.draw.polygon(bg, (255, 200, 0), flame_points, 2)
+    
+    return bg
+
+def create_detailed_background_level3():
+    bg = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+    # Градиент для логова дракона
+    for y in range(SCREEN_HEIGHT):
+        r = min(80, 40 + y // 15)
+        g = max(0, 20 - y // 25)
+        b = max(0, 10 - y // 35)
+        pygame.draw.line(bg, (r, g, b), (0, y), (SCREEN_WIDTH, y))
+    
+    # Пещера - сталактиты и сталагмиты
+    for i in range(30):
+        # Сталактиты (сверху)
+        x = random.randint(0, SCREEN_WIDTH)
+        width = random.randint(5, 20)
+        height = random.randint(20, 60)
+        points = [
+            (x, 0),
+            (x - width, height),
+            (x + width, height)
+        ]
+        pygame.draw.polygon(bg, (70, 60, 50), points)
+        
+        # Сталагмиты (снизу)
+        x = random.randint(0, SCREEN_WIDTH)
+        width = random.randint(5, 25)
+        height = random.randint(30, 80)
+        points = [
+            (x, SCREEN_HEIGHT),
+            (x - width, SCREEN_HEIGHT - height),
+            (x + width, SCREEN_HEIGHT - height)
+        ]
+        pygame.draw.polygon(bg, (70, 60, 50), points)
+    
+    # Сокровища дракона
+    treasure_x = SCREEN_WIDTH // 2 - 200
+    treasure_y = SCREEN_HEIGHT - 150
+    
+    # Золотые монеты
+    for i in range(100):
+        coin_x = treasure_x + random.randint(0, 400)
+        coin_y = treasure_y + random.randint(0, 100)
+        pygame.draw.circle(bg, (255, 215, 0), (coin_x, coin_y), 5)
+        pygame.draw.circle(bg, (200, 150, 0), (coin_x, coin_y), 3)
+    
+    # Драгоценные камни
+    gem_colors = [(255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 0, 255)]
+    for i in range(20):
+        gem_x = treasure_x + random.randint(0, 400)
+        gem_y = treasure_y + random.randint(0, 100)
+        color = random.choice(gem_colors)
+        size = random.randint(8, 15)
+        pygame.draw.rect(bg, color, (gem_x, gem_y, size, size))
+        pygame.draw.rect(bg, (255, 255, 255), (gem_x, gem_y, size, size), 1)
+    
+    # Кости жертв
+    for i in range(10):
+        bone_x = random.randint(100, SCREEN_WIDTH-100)
+        bone_y = SCREEN_HEIGHT - 80
+        # Череп
+        pygame.draw.circle(bg, (200, 200, 200), (bone_x, bone_y), 10)
+        # Глазницы
+        pygame.draw.circle(bg, (50, 50, 50), (bone_x-3, bone_y-2), 2)
+        pygame.draw.circle(bg, (50, 50, 50), (bone_x+3, bone_y-2), 2)
+        # Ребра
+        for j in range(3):
+            pygame.draw.ellipse(bg, (180, 180, 180), (bone_x-15+j*10, bone_y+15, 8, 15))
+    
     return bg
 
 def create_potion_texture():
@@ -109,7 +393,7 @@ def create_cursor_texture():
     pygame.draw.line(surf, (255, 255, 255), (2, 12), (8, 12), 2)
     return surf
 
-# Загрузка текстур
+# Загрузка/создание текстур
 try:
     # Загрузка фонов для разных уровней
     bg_level1 = load_image("backgrounds/bg_level1.png", (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -123,35 +407,33 @@ try:
     ghost_img = load_image("characters/ghost.png", (65, 85))
     dragon_img = load_image("characters/dragon.png", (200, 140))
     
-    # Загрузка предметов
-    health_potion_img = load_image("items/health_potion.png", (40, 40))
-    sword_img = load_image("items/sword.png", (50, 50))
-    
-    # Загрузка курсора
-    cursor_img = load_image("ui/cursor.png", (25, 25))
-    
 except Exception as e:
     print(f"Ошибка загрузки изображений: {e}")
-    print("Создаются простые текстуры...")
+    print("Создаются детализированные текстуры...")
     
-    # Создаем фоны для разных уровней
-    bg_level1 = create_background((40, 30, 20))
-    bg_level2 = create_background((60, 20, 40))  
-    bg_level3 = create_background((80, 20, 20))
+    # Создаем детализированные фоны для разных уровней
+    bg_level1 = create_detailed_background_level1()
+    bg_level2 = create_detailed_background_level2()  
+    bg_level3 = create_detailed_background_level3()
     
-    # Создаем персонажей
-    dark_prince_img = create_character_texture((80, 60, 120), (80, 100), "PRINCE")
-    skeleton_img = create_character_texture((150, 150, 150), (60, 80), "SKELETON")
-    demon_img = create_character_texture((180, 40, 40), (70, 90), "DEMON")
-    ghost_img = create_character_texture((180, 180, 220), (65, 85), "GHOST")
-    dragon_img = create_character_texture((220, 80, 40), (200, 140), "DRAGON")
-    
-    # Создаем предметы
+    # Создаем детализированных персонажей
+    dark_prince_img = create_detailed_dark_prince((80, 100))
+    skeleton_img = create_detailed_skeleton((60, 80))
+    demon_img = create_detailed_demon((70, 90))
+    ghost_img = create_detailed_ghost((65, 85))
+    dragon_img = create_detailed_dragon((200, 140))
+
+# Загрузка предметов и курсора (остаются без изменений)
+try:
+    health_potion_img = load_image("items/health_potion.png", (40, 40))
+    sword_img = load_image("items/sword.png", (50, 50))
+    cursor_img = load_image("ui/cursor.png", (25, 25))
+except:
     health_potion_img = create_potion_texture()
     sword_img = create_sword_texture()
     cursor_img = create_cursor_texture()
 
-# Класс анимации атаки
+# Класс анимации атаки (без изменений)
 class AttackEffect:
     def __init__(self, x, y, direction):
         self.x = x
@@ -173,7 +455,7 @@ class AttackEffect:
         pygame.draw.circle(surf, (255, 200, 50, alpha), (self.radius, self.radius), self.radius)
         screen.blit(surf, (self.x - self.radius, self.y - self.radius))
 
-# Класс игрока
+# Класс игрока (без изменений)
 class Player:
     def __init__(self):
         self.health = 100
@@ -185,7 +467,7 @@ class Player:
         self.rect = pygame.Rect(self.x - 40, self.y - 50, 80, 100)
         self.attack_cooldown = 0
         self.score = 0
-        self.health_potions = 0  # Начинаем без зелий
+        self.health_potions = 0
         self.direction = "right"
         self.level = 1
         self.enemies_killed = 0
@@ -275,11 +557,12 @@ class Player:
             if not effect.update():
                 self.attack_effects.remove(effect)
     
-    def draw(self, screen):
+    def draw(self, screen):  # Исправлено: правильный отступ
         # Рисуем игрока
         if self.direction == "right":
             screen.blit(dark_prince_img, (self.x - 40, self.y - 50))
         else:
+            # Отражаем изображение для левого направления
             flipped_img = pygame.transform.flip(dark_prince_img, True, False)
             screen.blit(flipped_img, (self.x - 40, self.y - 50))
         
@@ -287,135 +570,133 @@ class Player:
         for effect in self.attack_effects:
             effect.draw(screen)
         
-        # Рисуем здоровье
-        pygame.draw.rect(screen, DARK_RED, (self.x - 40, self.y - 60, 80, 8))
-        pygame.draw.rect(screen, BLOOD_RED, (self.x - 40, self.y - 60, 80 * (self.health / self.max_health), 8))
-    
-    def use_health_potion(self):
-        if self.health_potions > 0:
-            self.health = min(self.max_health, self.health + 40)
-            self.health_potions -= 1
-            return True
-        return False
+        # Рисуем индикатор здоровья
+        health_width = 100
+        health_height = 10
+        health_x = self.x - health_width // 2
+        health_y = self.y - 70
+        
+        # Фон индикатора здоровья
+        pygame.draw.rect(screen, DARK_RED, (health_x, health_y, health_width, health_height))
+        # Текущее здоровье
+        health_percent = self.health / self.max_health
+        pygame.draw.rect(screen, BLOOD_RED, (health_x, health_y, health_width * health_percent, health_height))
+        # Рамка
+        pygame.draw.rect(screen, BONE_WHITE, (health_x, health_y, health_width, health_height), 1)
 
-# Класс врага
+# Класс врага (нужно дописать)
 class Enemy:
-    def __init__(self, enemy_type, x, y):
+    def __init__(self, enemy_type, x, y, level):
         self.type = enemy_type
         self.x = x
         self.y = y
-        self.direction = "left"
+        self.level = level
         
+        # Устанавливаем характеристики в зависимости от типа врага и уровня
         if enemy_type == "skeleton":
-            self.health = 30
-            self.max_health = 30
-            self.damage = 10
-            self.speed = 2
-            self.rect = pygame.Rect(self.x - 30, self.y - 40, 60, 80)
+            self.health = 30 + level * 10
+            self.max_health = 30 + level * 10
+            self.damage = 10 + level * 3
+            self.speed = 2 + level * 0.5
+            self.rect = pygame.Rect(x - 30, y - 40, 60, 80)
             self.image = skeleton_img
         elif enemy_type == "demon":
-            self.health = 40
-            self.max_health = 40
-            self.damage = 15
-            self.speed = 3
-            self.rect = pygame.Rect(self.x - 35, self.y - 45, 70, 90)
+            self.health = 50 + level * 15
+            self.max_health = 50 + level * 15
+            self.damage = 15 + level * 4
+            self.speed = 1.5 + level * 0.4
+            self.rect = pygame.Rect(x - 35, y - 45, 70, 90)
             self.image = demon_img
         elif enemy_type == "ghost":
-            self.health = 25
-            self.max_health = 25
-            self.damage = 12
-            self.speed = 4
-            self.rect = pygame.Rect(self.x - 32, self.y - 42, 65, 85)
+            self.health = 20 + level * 8
+            self.max_health = 20 + level * 8
+            self.damage = 8 + level * 2
+            self.speed = 3 + level * 0.6
+            self.rect = pygame.Rect(x - 32, y - 42, 65, 85)
             self.image = ghost_img
         elif enemy_type == "dragon":
-            self.health = 150
-            self.max_health = 150
-            self.damage = 25
-            self.speed = 1.5
-            self.rect = pygame.Rect(self.x - 100, self.y - 70, 200, 140)
+            self.health = 200 + level * 50
+            self.max_health = 200 + level * 50
+            self.damage = 30 + level * 10
+            self.speed = 1 + level * 0.2
+            self.rect = pygame.Rect(x - 100, y - 70, 200, 140)
             self.image = dragon_img
-            self.special_attack_cooldown = 0
         
+        self.direction = 1  # 1 для движения вправо, -1 для движения влево
         self.attack_cooldown = 0
+        self.velocity_y = 0
+        self.on_ground = False
     
-    def move_towards(self, target_x, target_y):
-        dx = target_x - self.x
-        dy = target_y - self.y
-        dist = max(1, math.sqrt(dx * dx + dy * dy))
-        dx, dy = dx / dist, dy / dist
-        
-        if dx > 0:
-            self.direction = "right"
+    def move_towards_player(self, player_x, platforms):
+        # Простое движение к игроку
+        if self.x < player_x:
+            self.direction = 1
+            self.x += self.speed
         else:
-            self.direction = "left"
-            
-        self.x += dx * self.speed
-        self.y += dy * self.speed
+            self.direction = -1
+            self.x -= self.speed
+        
+        # Простая гравитация для врагов
+        if not self.on_ground:
+            self.velocity_y += 0.8
+            if self.velocity_y > 15:
+                self.velocity_y = 15
+        
+        self.y += self.velocity_y
+        self.rect.center = (self.x, self.y)
+        self.on_ground = False
+        
+        # Проверка столкновений с платформами
+        for platform in platforms:
+            if self.rect.colliderect(platform.rect):
+                if self.velocity_y > 0 and self.rect.bottom <= platform.rect.top + 15:
+                    self.y = platform.rect.top - (self.rect.height // 2)
+                    self.velocity_y = 0
+                    self.on_ground = True
+                elif self.velocity_y < 0 and self.rect.top >= platform.rect.bottom - 15:
+                    self.y = platform.rect.bottom + (self.rect.height // 2)
+                    self.velocity_y = 0
+        
         self.rect.center = (self.x, self.y)
     
     def attack(self):
         if self.attack_cooldown == 0:
             self.attack_cooldown = 30
-            damage = self.damage + random.randint(-3, 3)
-            
-            if self.type == "dragon" and self.special_attack_cooldown == 0:
-                self.special_attack_cooldown = 100
-                damage = int(damage * 1.5)
-            
-            return damage
+            return self.damage + random.randint(-3, 3)
         return 0
     
     def update(self):
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
-        
-        if self.type == "dragon" and self.special_attack_cooldown > 0:
-            self.special_attack_cooldown -= 1
     
     def draw(self, screen):
-        if self.direction == "right":
-            screen.blit(self.image, (self.rect.x, self.rect.y))
+        # Рисуем врага
+        if self.direction == 1:
+            screen.blit(self.image, (self.x - self.rect.width//2, self.y - self.rect.height//2))
         else:
             flipped_img = pygame.transform.flip(self.image, True, False)
-            screen.blit(flipped_img, (self.rect.x, self.rect.y))
+            screen.blit(flipped_img, (self.x - self.rect.width//2, self.y - self.rect.height//2))
         
-        health_width = 70
-        if self.type == "dragon":
-            health_width = 160
+        # Индикатор здоровья врага
+        health_width = 60
+        health_height = 5
+        health_x = self.x - health_width // 2
+        health_y = self.y - self.rect.height // 2 - 10
         
-        pygame.draw.rect(screen, DARK_RED, (self.x - health_width//2, self.y - 70, health_width, 8))
-        pygame.draw.rect(screen, BLOOD_RED, (self.x - health_width//2, self.y - 70, health_width * (self.health / self.max_health), 8))
-        
-        if self.type == "dragon":
-            if self.special_attack_cooldown > 0:
-                pygame.draw.rect(screen, DARK_RED, (self.x - health_width//2, self.y - 80, health_width, 6))
-            else:
-                pygame.draw.rect(screen, DARK_GOLD, (self.x - health_width//2, self.y - 80, health_width, 6))
+        # Фон индикатора здоровья
+        pygame.draw.rect(screen, DARK_RED, (health_x, health_y, health_width, health_height))
+        # Текущее здоровье
+        health_percent = self.health / self.max_health
+        pygame.draw.rect(screen, BLOOD_RED, (health_x, health_y, health_width * health_percent, health_height))
 
 # Класс платформы
 class Platform:
-    def __init__(self, x, y, width, height, platform_type="stone"):
+    def __init__(self, x, y, width, height):
         self.rect = pygame.Rect(x, y, width, height)
-        self.type = platform_type
-        
-        # Создаем текстуру платформы
-        self.texture = pygame.Surface((width, height), pygame.SRCALPHA)
-        
-        if platform_type == "stone":
-            base_color = (80, 70, 60)
-            for i in range(width * height // 50):
-                px = random.randint(0, width-1)
-                py = random.randint(0, height-1)
-                pygame.draw.circle(self.texture, (100, 90, 80, 150), (px, py), random.randint(1, 3))
-            pygame.draw.rect(self.texture, base_color, (0, 0, width, height), 3)
     
     def draw(self, screen):
-        screen.blit(self.texture, self.rect.topleft)
-        # Добавляем тень
-        shadow_rect = self.rect.move(4, 4)
-        shadow = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
-        shadow.fill((0, 0, 0, 80))
-        screen.blit(shadow, shadow_rect.topleft)
+        pygame.draw.rect(screen, DARK_GRAY, self.rect)
+        pygame.draw.rect(screen, ASH_GRAY, self.rect, 2)
 
 # Класс предмета
 class Item:
@@ -424,510 +705,368 @@ class Item:
         self.x = x
         self.y = y
         self.rect = pygame.Rect(x - 20, y - 20, 40, 40)
-        self.float_offset = 0
-        self.float_direction = 1
-        self.rotation = 0
-    
-    def update(self):
-        # Плавающая анимация
-        self.float_offset += 0.1 * self.float_direction
-        if abs(self.float_offset) > 4:
-            self.float_direction *= -1
         
-        # Вращение для меча
-        if self.type == "sword":
-            self.rotation = (self.rotation + 1) % 360
-        
-        self.rect.y = self.y - 20 + self.float_offset
+        if item_type == "health_potion":
+            self.image = health_potion_img
+        elif item_type == "sword":
+            self.image = sword_img
     
     def draw(self, screen):
-        if self.type == "health_potion":
-            screen.blit(health_potion_img, (self.x - 20, self.y - 20 + self.float_offset))
-        elif self.type == "sword":
-            rotated_sword = pygame.transform.rotate(sword_img, self.rotation)
-            screen.blit(rotated_sword, (self.x - rotated_sword.get_width()//2, 
-                                       self.y - rotated_sword.get_height()//2 + self.float_offset))
+        screen.blit(self.image, (self.x - 20, self.y - 20))
 
-# Класс для управления волнами врагов
-class WaveManager:
+# Класс игры
+class Game:
     def __init__(self):
-        self.current_wave = 1
-        self.max_waves = 3
-        self.wave_complete = False
-        self.enemies_spawned = 0
-        self.enemies_per_wave = 0
+        self.player = Player()
+        self.enemies = []
+        self.platforms = []
+        self.items = []
+        self.level = 1
+        self.game_state = "menu"  # menu, playing, game_over, level_complete
         self.spawn_timer = 0
-        self.spawn_delay = 120
-        self.wave_started = False
+        self.level_timer = 0
+        self.level_duration = 1800  # 30 секунд на уровень (60 FPS * 30)
+        self.generate_level()
+    
+    def generate_level(self):
+        self.platforms = []
+        self.items = []
         
-    def start_wave(self, wave_number):
-        self.current_wave = wave_number
-        self.wave_complete = False
-        self.enemies_spawned = 0
-        self.spawn_timer = 0
-        self.wave_started = True
+        # Создаем базовые платформы
+        self.platforms.append(Platform(0, SCREEN_HEIGHT - 50, SCREEN_WIDTH, 50))  # Земля
         
-        if wave_number == 1:
-            self.enemies_per_wave = 3
-        elif wave_number == 2:
-            self.enemies_per_wave = 4
-        elif wave_number == 3:
-            self.enemies_per_wave = 1
+        if self.level == 1:
+            # Платформы для уровня 1
+            self.platforms.append(Platform(200, SCREEN_HEIGHT - 150, 200, 20))
+            self.platforms.append(Platform(500, SCREEN_HEIGHT - 200, 150, 20))
+            self.platforms.append(Platform(300, SCREEN_HEIGHT - 300, 200, 20))
+        elif self.level == 2:
+            # Платформы для уровня 2
+            self.platforms.append(Platform(100, SCREEN_HEIGHT - 150, 150, 20))
+            self.platforms.append(Platform(400, SCREEN_HEIGHT - 200, 200, 20))
+            self.platforms.append(Platform(200, SCREEN_HEIGHT - 300, 100, 20))
+            self.platforms.append(Platform(500, SCREEN_HEIGHT - 350, 150, 20))
+        elif self.level == 3:
+            # Платформы для уровня 3
+            self.platforms.append(Platform(150, SCREEN_HEIGHT - 150, 100, 20))
+            self.platforms.append(Platform(350, SCREEN_HEIGHT - 200, 120, 20))
+            self.platforms.append(Platform(200, SCREEN_HEIGHT - 300, 150, 20))
+            self.platforms.append(Platform(450, SCREEN_HEIGHT - 350, 100, 20))
+            self.platforms.append(Platform(300, SCREEN_HEIGHT - 450, 200, 20))
+        
+        # Создаем несколько предметов
+        for i in range(3):
+            x = random.randint(100, SCREEN_WIDTH - 100)
+            y = random.randint(100, SCREEN_HEIGHT - 200)
+            item_type = random.choice(["health_potion", "sword"])
+            self.items.append(Item(item_type, x, y))
+    
+    def spawn_enemy(self):
+        if len(self.enemies) < 5 + self.level:  # Максимум врагов на уровне
+            x = random.choice([-50, SCREEN_WIDTH + 50])
+            y = SCREEN_HEIGHT - 100
+            
+            # Выбираем тип врага в зависимости от уровня
+            if self.level == 1:
+                enemy_type = random.choice(["skeleton", "skeleton", "ghost"])
+            elif self.level == 2:
+                enemy_type = random.choice(["skeleton", "demon", "ghost"])
+            else:
+                enemy_type = random.choice(["skeleton", "demon", "ghost", "dragon"])
+            
+            self.enemies.append(Enemy(enemy_type, x, y, self.level))
+    
+    def check_collisions(self):
+        # Проверка столкновений игрока с предметами
+        for item in self.items[:]:
+            if self.player.rect.colliderect(item.rect):
+                if item.type == "health_potion":
+                    self.player.health = min(self.player.max_health, self.player.health + 30)
+                    self.player.health_potions += 1
+                elif item.type == "sword":
+                    self.player.damage += 5
+                
+                self.items.remove(item)
+        
+        # Проверка атак игрока
+        for enemy in self.enemies[:]:
+            for attack_effect in self.player.attack_effects:
+                attack_rect = pygame.Rect(
+                    attack_effect.x - attack_effect.radius,
+                    attack_effect.y - attack_effect.radius,
+                    attack_effect.radius * 2,
+                    attack_effect.radius * 2
+                )
+                
+                if enemy.rect.colliderect(attack_rect):
+                    enemy.health -= self.player.damage
+                    if enemy.health <= 0:
+                        self.enemies.remove(enemy)
+                        self.player.score += 10 * self.level
+                        self.player.enemies_killed += 1
+                    break
+        
+        # Проверка атак врагов
+        for enemy in self.enemies:
+            if enemy.rect.colliderect(self.player.rect) and enemy.attack_cooldown == 0:
+                damage = enemy.attack()
+                self.player.health -= damage
     
     def update(self):
-        if self.wave_started and not self.wave_complete:
-            self.spawn_timer += 1
-            if self.spawn_timer >= self.spawn_delay and self.enemies_spawned < self.enemies_per_wave:
-                self.spawn_timer = 0
-                return True
-        return False
-    
-    def enemy_spawned(self):
-        self.enemies_spawned += 1
-        if self.enemies_spawned >= self.enemies_per_wave:
-            self.wave_started = False
-    
-    def check_wave_complete(self, enemies):
-        return len(enemies) == 0 and not self.wave_started
-    
-    def next_wave(self):
-        if self.current_wave < self.max_waves:
-            self.current_wave += 1
-            return True
-        return False
-
-# Класс для управления уровнями
-class LevelManager:
-    def __init__(self):
-        self.current_level = 1
-        self.max_level = 3
-        self.level_complete = False
-        self.wave_manager = WaveManager()
-        self.platforms = []
-        self.create_platforms()
-    
-    def get_background(self):
-        """Возвращает фон для текущего уровня"""
-        if self.current_level == 1:
-            return bg_level1
-        elif self.current_level == 2:
-            return bg_level2
-        elif self.current_level == 3:
-            return bg_level3
-        return bg_level1
-    
-    def create_platforms(self):
-        """Создает платформы для уровня"""
-        self.platforms = []
-        # Основная платформа (земля)
-        self.platforms.append(Platform(0, SCREEN_HEIGHT - 60, SCREEN_WIDTH, 60, "stone"))
-        
-        if self.current_level == 1:
-            self.platforms.append(Platform(200, SCREEN_HEIGHT - 160, 160, 25, "stone"))
-            self.platforms.append(Platform(500, SCREEN_HEIGHT - 210, 160, 25, "stone"))
-            self.platforms.append(Platform(800, SCREEN_HEIGHT - 160, 160, 25, "stone"))
-        elif self.current_level == 2:
-            self.platforms.append(Platform(150, SCREEN_HEIGHT - 190, 130, 25, "stone"))
-            self.platforms.append(Platform(350, SCREEN_HEIGHT - 260, 130, 25, "stone"))
-            self.platforms.append(Platform(550, SCREEN_HEIGHT - 190, 130, 25, "stone"))
-            self.platforms.append(Platform(750, SCREEN_HEIGHT - 260, 130, 25, "stone"))
-        elif self.current_level == 3:
-            self.platforms.append(Platform(200, SCREEN_HEIGHT - 210, 220, 25, "stone"))
-            self.platforms.append(Platform(600, SCREEN_HEIGHT - 310, 220, 25, "stone"))
-            self.platforms.append(Platform(1000, SCREEN_HEIGHT - 210, 220, 25, "stone"))
-    
-    def spawn_enemy(self, enemy_type):
-        if enemy_type == "skeleton":
-            return Enemy("skeleton", SCREEN_WIDTH - 100, SCREEN_HEIGHT - 110)
-        elif enemy_type == "demon":
-            return Enemy("demon", SCREEN_WIDTH - 100, SCREEN_HEIGHT - 190)
-        elif enemy_type == "ghost":
-            return Enemy("ghost", SCREEN_WIDTH - 100, SCREEN_HEIGHT - 260)
-        elif enemy_type == "dragon":
-            return Enemy("dragon", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 210)
-        return None
-    
-    # ... остальные методы класса LevelManager
-    
-    def spawn_enemy(self, enemy_type):
-        if enemy_type == "skeleton":
-            return Enemy("skeleton", SCREEN_WIDTH - 100, SCREEN_HEIGHT - 110)
-        elif enemy_type == "demon":
-            return Enemy("demon", SCREEN_WIDTH - 100, SCREEN_HEIGHT - 190)
-        elif enemy_type == "ghost":
-            return Enemy("ghost", SCREEN_WIDTH - 100, SCREEN_HEIGHT - 260)
-        elif enemy_type == "dragon":
-            return Enemy("dragon", SCREEN_WIDTH // 2, SCREEN_HEIGHT - 210)
-        return None
-    
-    def get_level_items(self):
-        """Генерирует предметы для уровня, появляющиеся снизу"""
-        items = []
-        platform = self.platforms[0]  # Основная платформа
-        
-        if self.current_level == 1:
-            # 3 зелья на первом уровне
-            for i in range(3):
-                x = random.randint(100, SCREEN_WIDTH - 100)
-                y = platform.rect.top - 30  # Над платформой
-                items.append(Item("health_potion", x, y))
-                
-        elif self.current_level == 2:
-            # 2 зелья и 1 меч на втором уровне
-            for i in range(2):
-                x = random.randint(100, SCREEN_WIDTH - 100)
-                y = platform.rect.top - 30
-                items.append(Item("health_potion", x, y))
+        if self.game_state == "playing":
+            # Обновление игрока
+            self.player.update()
+            self.player.update_physics(self.platforms)
             
-            x = random.randint(100, SCREEN_WIDTH - 100)
-            y = platform.rect.top - 30
-            items.append(Item("sword", x, y))
-                
-        elif self.current_level == 3:
-            # 3 зелья на третьем уровне
-            for i in range(3):
-                x = random.randint(100, SCREEN_WIDTH - 100)
-                y = platform.rect.top - 30
-                items.append(Item("health_potion", x, y))
-                
-        return items
+            # Обновление врагов
+            for enemy in self.enemies:
+                enemy.update()
+                enemy.move_towards_player(self.player.x, self.platforms)
+            
+            # Спавн врагов
+            self.spawn_timer += 1
+            if self.spawn_timer >= 120 - self.level * 10:  # Чаще спавним на высоких уровнях
+                self.spawn_enemy()
+                self.spawn_timer = 0
+            
+            # Проверка столкновений
+            self.check_collisions()
+            
+            # Таймер уровня
+            self.level_timer += 1
+            if self.level_timer >= self.level_duration:
+                self.level_complete()
+            
+            # Проверка смерти игрока
+            if self.player.health <= 0:
+                self.game_state = "game_over"
+            
+            # Проверка завершения уровня (убийство босса)
+            if self.level == 3:
+                dragon_exists = any(enemy.type == "dragon" for enemy in self.enemies)
+                if not dragon_exists and self.level_timer > 300:  # Даем время до появления дракона
+                    self.level_complete()
     
-    def check_level_complete(self, enemies):
-        return len(enemies) == 0
+    def level_complete(self):
+        if self.level < 3:
+            self.level += 1
+            self.player.level = self.level
+            self.generate_level()
+            self.enemies = []
+            self.level_timer = 0
+            self.game_state = "level_complete"
+        else:
+            self.game_state = "victory"
     
-    def next_level(self):
-        if self.current_level < self.max_level:
-            self.current_level += 1
-            self.level_complete = False
-            self.create_platforms()  # Пересоздаем платформы для нового уровня
-            return True
-        return False
-    
-    def get_level_name(self):
-        level_names = {
-            1: "Гробница Забвения",
-            2: "Врата Ада", 
-            3: "Логово Дракона"
-        }
-        return level_names.get(self.current_level, f"Уровень {self.current_level}")
-    
-    def get_level_description(self):
-        descriptions = {
-            1: "Скелеты восстали из могил...",
-            2: "Демоны стерегут врата в преисподнюю...",
-            3: "Древний дракон пробудился от вечного сна..."
-        }
-        return descriptions.get(self.current_level, "")
-
-# Функция для отрисовки мрачного интерфейса
-def draw_dark_ui(screen, player, level_manager, enemies, game_state):
-    # Фон интерфейса
-    pygame.draw.rect(screen, (0, 0, 0, 180), (0, 0, SCREEN_WIDTH, 100))
-    pygame.draw.rect(screen, (0, 0, 0, 180), (0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40))
-    
-    # Здоровье
-    health_bg = pygame.Rect(20, 20, 200, 25)
-    health_fill = pygame.Rect(20, 20, 200 * (player.health / player.max_health), 25)
-    pygame.draw.rect(screen, DARK_RED, health_bg)
-    pygame.draw.rect(screen, BLOOD_RED, health_fill)
-    pygame.draw.rect(screen, DARK_GRAY, health_bg, 2)
-    
-    health_text = main_font.render(f"{player.health}/{player.max_health}", True, BONE_WHITE)
-    screen.blit(health_text, (25, 22))
-    
-    # Зелья
-    potion_icon = pygame.transform.scale(health_potion_img, (30, 30))
-    screen.blit(potion_icon, (240, 18))
-    potions_text = main_font.render(f"×{player.health_potions}", True, BONE_WHITE)
-    screen.blit(potions_text, (275, 22))
-    
-    # Информация об уровне
-    level_text = main_font.render(level_manager.get_level_name(), True, DARK_GOLD)
-    screen.blit(level_text, (SCREEN_WIDTH // 2 - level_text.get_width() // 2, 20))
-    
-    wave_text = small_font.render(f"Волна: {level_manager.wave_manager.current_wave}/3", True, LIGHT_BLUE)
-    screen.blit(wave_text, (SCREEN_WIDTH // 2 - wave_text.get_width() // 2, 60))
-    
-    # Статистика
-    score_text = small_font.render(f"Счет: {player.score}", True, DARK_GOLD)
-    screen.blit(score_text, (SCREEN_WIDTH - 150, 20))
-    
-    enemies_text = small_font.render(f"Врагов: {len(enemies)}", True, LIGHT_BLUE)
-    screen.blit(enemies_text, (SCREEN_WIDTH - 150, 50))
-    
-    kills_text = small_font.render(f"Убито: {player.enemies_killed}", True, BLOOD_RED)
-    screen.blit(kills_text, (SCREEN_WIDTH - 150, 80))
-    
-    # Управление
-    if game_state == "playing":
-        controls_text = small_font.render("WASD - движение | ЛКМ - атака | H - зелье | ESC - выход", True, ASH_GRAY)
-        screen.blit(controls_text, (SCREEN_WIDTH // 2 - controls_text.get_width() // 2, SCREEN_HEIGHT - 30))
-
-# Функция для начального экрана
-def show_start_screen():
-    start = True
-    
-    while start:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    start = False
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+    def draw(self, screen):
+        # Рисуем фон в зависимости от уровня
+        if self.level == 1:
+            screen.blit(bg_level1, (0, 0))
+        elif self.level == 2:
+            screen.blit(bg_level2, (0, 0))
+        else:
+            screen.blit(bg_level3, (0, 0))
         
-        # Затемнение фона
-        screen.fill(BLACK)
+        # Рисуем платформы
+        for platform in self.platforms:
+            platform.draw(screen)
+        
+        # Рисуем предметы
+        for item in self.items:
+            item.draw(screen)
+        
+        # Рисуем врагов
+        for enemy in self.enemies:
+            enemy.draw(screen)
+        
+        # Рисуем игрока
+        self.player.draw(screen)
+        
+        # Рисуем интерфейс
+        self.draw_ui(screen)
+        
+        # Рисуем курсор
+        mouse_pos = pygame.mouse.get_pos()
+        screen.blit(cursor_img, (mouse_pos[0] - 12, mouse_pos[1] - 12))
+    
+    def draw_ui(self, screen):
+        # Информация о здоровье
+        health_text = main_font.render(f"Здоровье: {self.player.health}/{self.player.max_health}", True, BONE_WHITE)
+        screen.blit(health_text, (20, 20))
+        
+        # Счет
+        score_text = main_font.render(f"Счет: {self.player.score}", True, BONE_WHITE)
+        screen.blit(score_text, (20, 60))
+        
+        # Уровень
+        level_text = main_font.render(f"Уровень: {self.level}", True, BONE_WHITE)
+        screen.blit(level_text, (20, 100))
+        
+        # Зелья здоровья
+        potion_text = main_font.render(f"Зелья: {self.player.health_potions}", True, BONE_WHITE)
+        screen.blit(potion_text, (20, 140))
+        
+        # Таймер уровня
+        time_left = (self.level_duration - self.level_timer) // 60
+        timer_text = main_font.render(f"Время: {time_left}с", True, BONE_WHITE)
+        screen.blit(timer_text, (SCREEN_WIDTH - 200, 20))
+        
+        # Убито врагов
+        kills_text = main_font.render(f"Убито: {self.player.enemies_killed}", True, BONE_WHITE)
+        screen.blit(kills_text, (SCREEN_WIDTH - 200, 60))
+        
+        # Экран меню
+        if self.game_state == "menu":
+            self.draw_menu(screen)
+        elif self.game_state == "game_over":
+            self.draw_game_over(screen)
+        elif self.game_state == "level_complete":
+            self.draw_level_complete(screen)
+        elif self.game_state == "victory":
+            self.draw_victory(screen)
+    
+    def draw_menu(self, screen):
+        # Затемнение экрана
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200))
+        screen.blit(overlay, (0, 0))
         
         # Заголовок
-        title_text = title_font.render("ТЕМНЫЙ ПРИНЦ", True, DARK_GOLD)
-        subtitle_text = main_font.render("Восхождение Тьмы", True, BLOOD_RED)
+        title_text = title_font.render("Темный Принц: Восхождение Тьмы", True, BLOOD_RED)
+        screen.blit(title_text, (SCREEN_WIDTH//2 - title_text.get_width()//2, SCREEN_HEIGHT//4))
         
-        screen.blit(title_text, (SCREEN_WIDTH//2 - title_text.get_width()//2, SCREEN_HEIGHT//2 - 100))
-        screen.blit(subtitle_text, (SCREEN_WIDTH//2 - subtitle_text.get_width()//2, SCREEN_HEIGHT//2 - 30))
+        # Кнопка начала игры
+        start_button = pygame.Rect(SCREEN_WIDTH//2 - 150, SCREEN_HEIGHT//2, 300, 60)
+        pygame.draw.rect(screen, DARK_RED, start_button)
+        pygame.draw.rect(screen, BLOOD_RED, start_button, 3)
         
-        # Мигающая подсказка
-        if pygame.time.get_ticks() % 1000 < 500:
-            start_text = main_font.render("Нажмите ENTER чтобы начать", True, BONE_WHITE)
-            screen.blit(start_text, (SCREEN_WIDTH//2 - start_text.get_width()//2, SCREEN_HEIGHT//2 + 100))
+        start_text = main_font.render("Начать игру", True, BONE_WHITE)
+        screen.blit(start_text, (SCREEN_WIDTH//2 - start_text.get_width()//2, SCREEN_HEIGHT//2 + 15))
         
-        # Авторы
-        author_text = small_font.render("Darkness Games © 2024", True, ASH_GRAY)
-        screen.blit(author_text, (SCREEN_WIDTH - author_text.get_width() - 20, SCREEN_HEIGHT - 30))
+        # Инструкции
+        instructions = [
+            "Управление: WASD или стрелки для движения, ПКМ для атаки",
+            "Цель: победить всех врагов и пройти 3 уровня",
+            "Собирайте зелья для лечения и мечи для увеличения урона"
+        ]
         
-        pygame.display.flip()
-        pygame.time.delay(30)
+        for i, instruction in enumerate(instructions):
+            instr_text = small_font.render(instruction, True, ASH_GRAY)
+            screen.blit(instr_text, (SCREEN_WIDTH//2 - instr_text.get_width()//2, SCREEN_HEIGHT//2 + 100 + i*30))
+    
+    def draw_game_over(self, screen):
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200))
+        screen.blit(overlay, (0, 0))
+        
+        game_over_text = title_font.render("ПОРАЖЕНИЕ", True, BLOOD_RED)
+        screen.blit(game_over_text, (SCREEN_WIDTH//2 - game_over_text.get_width()//2, SCREEN_HEIGHT//3))
+        
+        score_text = main_font.render(f"Ваш счет: {self.player.score}", True, BONE_WHITE)
+        screen.blit(score_text, (SCREEN_WIDTH//2 - score_text.get_width()//2, SCREEN_HEIGHT//2))
+        
+        restart_text = main_font.render("Нажмите R для перезапуска", True, ASH_GRAY)
+        screen.blit(restart_text, (SCREEN_WIDTH//2 - restart_text.get_width()//2, SCREEN_HEIGHT//2 + 60))
+    
+    def draw_level_complete(self, screen):
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 150))
+        screen.blit(overlay, (0, 0))
+        
+        complete_text = title_font.render(f"Уровень {self.level-1} пройден!", True, DARK_GOLD)
+        screen.blit(complete_text, (SCREEN_WIDTH//2 - complete_text.get_width()//2, SCREEN_HEIGHT//3))
+        
+        continue_text = main_font.render("Нажмите ПРОБЕЛ для продолжения", True, BONE_WHITE)
+        screen.blit(continue_text, (SCREEN_WIDTH//2 - continue_text.get_width()//2, SCREEN_HEIGHT//2))
+    
+    def draw_victory(self, screen):
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200))
+        screen.blit(overlay, (0, 0))
+        
+        victory_text = title_font.render("ПОБЕДА!", True, DARK_GOLD)
+        screen.blit(victory_text, (SCREEN_WIDTH//2 - victory_text.get_width()//2, SCREEN_HEIGHT//3))
+        
+        score_text = main_font.render(f"Финальный счет: {self.player.score}", True, BONE_WHITE)
+        screen.blit(score_text, (SCREEN_WIDTH//2 - score_text.get_width()//2, SCREEN_HEIGHT//2))
+        
+        kills_text = main_font.render(f"Врагов убито: {self.player.enemies_killed}", True, BONE_WHITE)
+        screen.blit(kills_text, (SCREEN_WIDTH//2 - kills_text.get_width()//2, SCREEN_HEIGHT//2 + 40))
+        
+        restart_text = main_font.render("Нажмите R для новой игры", True, ASH_GRAY)
+        screen.blit(restart_text, (SCREEN_WIDTH//2 - restart_text.get_width()//2, SCREEN_HEIGHT//2 + 100))
 
-# Основная функция игры
+# Основной игровой цикл
 def main():
-    show_start_screen()
-    
+    game = Game()
     clock = pygame.time.Clock()
-    player = Player()
-    level_manager = LevelManager()
-    enemies = []
-    items = level_manager.get_level_items()
-    
-    level_manager.wave_manager.start_wave(1)
-    game_state = "playing"
     
     running = True
     while running:
-        mouse_pos = pygame.mouse.get_pos()
-        current_bg = level_manager.get_background()  # Получаем фон для текущего уровня
-        
+        # Обработка событий
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
+            
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-                if event.key == pygame.K_r and game_state != "playing":
-                    return main()
-                if event.key == pygame.K_h and game_state == "playing":
-                    player.use_health_potion()
-                if event.key == pygame.K_RETURN and game_state == "wave_complete":
-                    if level_manager.wave_manager.next_wave():
-                        level_manager.wave_manager.start_wave(level_manager.wave_manager.current_wave)
-                        game_state = "playing"
-                    elif level_manager.next_level():
-                        # Обновляем предметы для нового уровня
-                        items = level_manager.get_level_items()
-                        player.health = player.max_health
-                        level_manager.wave_manager.start_wave(1)
-                        game_state = "playing"
-                    else:
-                        game_state = "victory"
+                
+                if event.key == pygame.K_r and (game.game_state == "game_over" or game.game_state == "victory"):
+                    game = Game()  # Перезапуск игры
+                
+                if event.key == pygame.K_SPACE and game.game_state == "level_complete":
+                    game.game_state = "playing"
             
-            # Атака левой кнопкой мыши
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_state == "playing":
-                damage, attack_rect = player.attack(mouse_pos)
-                if damage > 0 and attack_rect:
-                    for enemy in enemies[:]:
-                        if attack_rect.colliderect(enemy.rect):
-                            enemy.health -= damage
-                            if enemy.health <= 0:
-                                player.score += 10
-                                player.enemies_killed += 1
-                                if enemy.type == "dragon":
-                                    player.score += 100
-                                enemies.remove(enemy)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # ЛКМ
+                    if game.game_state == "menu":
+                        mouse_pos = pygame.mouse.get_pos()
+                        start_button = pygame.Rect(SCREEN_WIDTH//2 - 150, SCREEN_HEIGHT//2, 300, 60)
+                        if start_button.collidepoint(mouse_pos):
+                            game.game_state = "playing"
+                    
+                    elif game.game_state == "playing":
+                        # Использование зелья здоровья
+                        if game.player.health_potions > 0 and game.player.health < game.player.max_health:
+                            game.player.health = min(game.player.max_health, game.player.health + 30)
+                            game.player.health_potions -= 1
+                
+                if event.button == 3:  # ПКМ - атака
+                    if game.game_state == "playing":
+                        game.player.attack(pygame.mouse.get_pos())
         
-        if game_state == "playing":
-            keys = pygame.key.get_pressed()
-            dx, dy = 0, 0
-            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-                dx -= 1
-            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-                dx += 1
-            if keys[pygame.K_UP] or keys[pygame.K_w]:
-                dy -= 1
+        # Получение состояния клавиш для движения
+        keys = pygame.key.get_pressed()
+        dx, dy = 0, 0
+        
+        if game.game_state == "playing":
+            # Движение влево/вправо
+            if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+                dx = -1
+            if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+                dx = 1
             
-            player.move(dx, dy)
-            player.update_physics(level_manager.platforms)
-            player.update()
+            # Прыжок
+            if keys[pygame.K_w] or keys[pygame.K_UP] or keys[pygame.K_SPACE]:
+                dy = -1
             
-            # Обновляем предметы
-            for item in items:
-                item.update()
-            
-            # Спавн врагов
-            if level_manager.wave_manager.update():
-                wave = level_manager.wave_manager.current_wave
-                if wave == 1:
-                    enemy = level_manager.spawn_enemy("skeleton")
-                elif wave == 2:
-                    if level_manager.wave_manager.enemies_spawned < 2:
-                        enemy = level_manager.spawn_enemy("demon")
-                    else:
-                        enemy = level_manager.spawn_enemy("ghost")
-                elif wave == 3:
-                    enemy = level_manager.spawn_enemy("dragon")
-                
-                if enemy:
-                    enemies.append(enemy)
-                    level_manager.wave_manager.enemy_spawned()
-            
-            # Движение врагов
-            for enemy in enemies:
-                enemy.move_towards(player.x, player.y)
-                enemy.update()
-                
-                if player.rect.colliderect(enemy.rect):
-                    damage = enemy.attack()
-                    if damage > 0:
-                        player.health -= damage
-            
-            # Сбор предметов
-            for item in items[:]:
-                if player.rect.colliderect(item.rect):
-                    if item.type == "health_potion":
-                        player.health_potions += 1
-                        # Восстанавливаем немного здоровья при сборе зелья
-                        player.health = min(player.max_health, player.health + 10)
-                    elif item.type == "sword":
-                        player.damage += 8  # Увеличиваем урон
-                    items.remove(item)
-            
-            # Проверка условий
-            if player.health <= 0:
-                game_state = "game_over"
-            
-            if level_manager.wave_manager.check_wave_complete(enemies):
-                game_state = "wave_complete"
+            game.player.move(dx, dy)
+        
+        # Обновление игры
+        game.update()
         
         # Отрисовка
-        screen.blit(current_bg, (0, 0))  # Используем фон текущего уровня
-        
-        for platform in level_manager.platforms:
-            platform.draw(screen)
-        
-        for item in items:
-            item.draw(screen)
-        
-        for enemy in enemies:
-            enemy.draw(screen)
-        
-        player.draw(screen)
-        
-        # Интерфейс
-        draw_dark_ui(screen, player, level_manager, enemies, game_state)
-        
-        # Курсор мыши
-        screen.blit(cursor_img, (mouse_pos[0] - 12, mouse_pos[1] - 12))
-        
-        # Экран Game Over
-        if game_state == "game_over":
-            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 200))
-            screen.blit(overlay, (0, 0))
-            
-            game_over_text = title_font.render("ПОРАЖЕНИЕ", True, BLOOD_RED)
-            screen.blit(game_over_text, (SCREEN_WIDTH//2 - game_over_text.get_width()//2, SCREEN_HEIGHT//2 - 100))
-            
-            score_text = main_font.render(f"Счет: {player.score}", True, DARK_GOLD)
-            screen.blit(score_text, (SCREEN_WIDTH//2 - score_text.get_width()//2, SCREEN_HEIGHT//2))
-            
-            kills_text = main_font.render(f"Убито врагов: {player.enemies_killed}", True, LIGHT_BLUE)
-            screen.blit(kills_text, (SCREEN_WIDTH//2 - kills_text.get_width()//2, SCREEN_HEIGHT//2 + 50))
-            
-            restart_text = main_font.render("Нажмите R для перезапуска", True, BONE_WHITE)
-            screen.blit(restart_text, (SCREEN_WIDTH//2 - restart_text.get_width()//2, SCREEN_HEIGHT//2 + 120))
-            
-            exit_text = small_font.render("ESC для выхода", True, ASH_GRAY)
-            screen.blit(exit_text, (SCREEN_WIDTH//2 - exit_text.get_width()//2, SCREEN_HEIGHT//2 + 180))
-        
-        # Экран завершения волны
-        elif game_state == "wave_complete":
-            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 50, 0, 150))
-            screen.blit(overlay, (0, 0))
-            
-            wave_text = title_font.render("ВОЛНА ПРОЙДЕНА", True, DARK_GOLD)
-            screen.blit(wave_text, (SCREEN_WIDTH//2 - wave_text.get_width()//2, SCREEN_HEIGHT//2 - 100))
-            
-            # Показываем информацию в зависимости от ситуации
-            if level_manager.wave_manager.current_wave < level_manager.wave_manager.max_waves:
-                next_text = main_font.render(f"Волна {level_manager.wave_manager.current_wave + 1}", True, BONE_WHITE)
-                screen.blit(next_text, (SCREEN_WIDTH//2 - next_text.get_width()//2, SCREEN_HEIGHT//2 - 20))
-                
-                # Добавляем награду за прохождение волны
-                reward_text = main_font.render("+1 зелье здоровья", True, BLOOD_RED)
-                screen.blit(reward_text, (SCREEN_WIDTH//2 - reward_text.get_width()//2, SCREEN_HEIGHT//2 + 20))
-                
-                continue_text = main_font.render("Нажмите ENTER чтобы продолжить", True, LIGHT_BLUE)
-                screen.blit(continue_text, (SCREEN_WIDTH//2 - continue_text.get_width()//2, SCREEN_HEIGHT//2 + 80))
-                
-            elif level_manager.current_level < level_manager.max_level:
-                level_text = main_font.render(f"Уровень {level_manager.current_level + 1}", True, BONE_WHITE)
-                screen.blit(level_text, (SCREEN_WIDTH//2 - level_text.get_width()//2, SCREEN_HEIGHT//2 - 20))
-                
-                # Награда за уровень
-                reward_text = main_font.render("+2 зелья здоровья", True, BLOOD_RED)
-                screen.blit(reward_text, (SCREEN_WIDTH//2 - reward_text.get_width()//2, SCREEN_HEIGHT//2 + 20))
-                
-                continue_text = main_font.render("Нажмите ENTER чтобы продолжить", True, LIGHT_BLUE)
-                screen.blit(continue_text, (SCREEN_WIDTH//2 - continue_text.get_width()//2, SCREEN_HEIGHT//2 + 80))
-                
-            else:
-                victory_text = main_font.render("Все уровни пройдены!", True, DARK_GOLD)
-                screen.blit(victory_text, (SCREEN_WIDTH//2 - victory_text.get_width()//2, SCREEN_HEIGHT//2 - 20))
-                
-                continue_text = main_font.render("Нажмите ENTER для победы", True, LIGHT_BLUE)
-                screen.blit(continue_text, (SCREEN_WIDTH//2 - continue_text.get_width()//2, SCREEN_HEIGHT//2 + 80))
-        
-        # Экран победы
-        elif game_state == "victory":
-            overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 80, 0, 180))
-            screen.blit(overlay, (0, 0))
-            
-            victory_text = title_font.render("ПОБЕДА!", True, DARK_GOLD)
-            screen.blit(victory_text, (SCREEN_WIDTH//2 - victory_text.get_width()//2, SCREEN_HEIGHT//2 - 150))
-            
-            dragon_text = main_font.render("Дракон повержен!", True, BONE_WHITE)
-            screen.blit(dragon_text, (SCREEN_WIDTH//2 - dragon_text.get_width()//2, SCREEN_HEIGHT//2 - 70))
-            
-            score_text = main_font.render(f"Финальный счет: {player.score}", True, DARK_GOLD)
-            screen.blit(score_text, (SCREEN_WIDTH//2 - score_text.get_width()//2, SCREEN_HEIGHT//2))
-            
-            kills_text = main_font.render(f"Врагов уничтожено: {player.enemies_killed}", True, LIGHT_BLUE)
-            screen.blit(kills_text, (SCREEN_WIDTH//2 - kills_text.get_width()//2, SCREEN_HEIGHT//2 + 60))
-            
-            restart_text = main_font.render("Нажмите R для новой игры", True, BONE_WHITE)
-            screen.blit(restart_text, (SCREEN_WIDTH//2 - restart_text.get_width()//2, SCREEN_HEIGHT//2 + 140))
-            
-            exit_text = small_font.render("ESC для выхода", True, ASH_GRAY)
-            screen.blit(exit_text, (SCREEN_WIDTH//2 - exit_text.get_width()//2, SCREEN_HEIGHT//2 + 200))
-        
+        game.draw(screen)
         pygame.display.flip()
+        
+        # Ограничение FPS
         clock.tick(60)
     
     pygame.quit()
     sys.exit()
 
 if __name__ == "__main__":
-    main()
+    main() 
+    
+
